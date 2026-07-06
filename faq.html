@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>자주 묻는 질문 | 고객센터</title>
+<style>
+  :root{
+    --bg: #FAF9F6;
+    --panel: #FFFFFF;
+    --ink: #1C2226;
+    --ink-soft: #5B6670;
+    --line: #E4E1D8;
+    --accent: #0F6659;
+    --accent-soft: #E4F2EF;
+    --highlight: #FFE8A3;
+    --radius: 10px;
+    font-size: 16px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    line-height:1.6;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    padding:64px 24px 40px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(600px 200px at 50% -80px, var(--accent-soft), transparent);
+  }
+  header h1{
+    font-family: Georgia, "Nanum Myeongjo", serif;
+    font-size: clamp(28px, 4vw, 40px);
+    margin:0 0 12px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    color:var(--ink-soft);
+    margin:0 auto 28px;
+    max-width:520px;
+    font-size:15px;
+  }
+
+  .search-wrap{
+    max-width:520px;
+    margin:0 auto;
+    position:relative;
+  }
+  #search{
+    width:100%;
+    padding:14px 44px 14px 18px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    font-size:15px;
+    color:var(--ink);
+    outline:none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  #search:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  .search-icon{
+    position:absolute;
+    right:16px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--ink-soft);
+    pointer-events:none;
+  }
+
+  /* ---------- Layout ---------- */
+  main{
+    max-width:800px;
+    margin:0 auto;
+    padding:40px 24px 100px;
+  }
+
+  .tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:36px;
+  }
+  .tab{
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--ink-soft);
+    padding:9px 16px;
+    border-radius:999px;
+    font-size:14px;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .tab:hover{ border-color: var(--accent); color:var(--ink); }
+  .tab.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+
+  .category-title{
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:40px 0 14px;
+  }
+  .category-title:first-child{ margin-top:0; }
+
+  /* ---------- FAQ items ---------- */
+  details{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:10px;
+    overflow:hidden;
+    scroll-margin-top: 24px;
+  }
+  details[open]{
+    border-color: var(--accent);
+  }
+  details[data-flash="1"]{
+    animation: flash 1.6s ease;
+  }
+  @keyframes flash{
+    0%{ box-shadow:0 0 0 4px var(--highlight); }
+    100%{ box-shadow:0 0 0 0 transparent; }
+  }
+
+  summary{
+    list-style:none;
+    cursor:pointer;
+    padding:18px 50px 18px 20px;
+    font-weight:600;
+    font-size:15.5px;
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  summary::-webkit-details-marker{ display:none; }
+
+  summary .chevron{
+    margin-left:auto;
+    flex:0 0 auto;
+    width:18px; height:18px;
+    color:var(--ink-soft);
+    transition: transform .2s ease;
+  }
+  details[open] summary .chevron{ transform: rotate(180deg); }
+
+  .link-btn{
+    position:absolute;
+    right:16px;
+    top:15px;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    padding:6px;
+    border-radius:6px;
+    display:flex;
+  }
+  .link-btn:hover{ background:var(--accent-soft); color:var(--accent); }
+  .link-btn svg{ width:16px; height:16px; }
+
+  .answer{
+    padding:0 20px 20px 20px;
+    color:var(--ink-soft);
+    font-size:14.5px;
+  }
+  .answer p { margin: 0 0 10px; }
+  .answer p:last-child{ margin-bottom:0; }
+  .answer a { color: var(--accent); }
+
+  .no-results{
+    text-align:center;
+    color:var(--ink-soft);
+    padding:60px 0;
+    display:none;
+  }
+
+  .toast{
+    position:fixed;
+    bottom:28px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ink);
+    color:#fff;
+    padding:10px 18px;
+    border-radius:999px;
+    font-size:13.5px;
+    opacity:0;
+    pointer-events:none;
+    transition: all .25s ease;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  /* ---------- Footer CTA ---------- */
+  .contact-cta{
+    max-width:800px;
+    margin:0 auto 80px;
+    padding:32px 24px;
+    text-align:center;
+    background:var(--accent-soft);
+    border-radius:var(--radius);
+  }
+  .contact-cta h2{
+    font-size:18px;
+    margin:0 0 8px;
+  }
+  .contact-cta p{
+    color:var(--ink-soft);
+    margin:0 0 18px;
+    font-size:14px;
+  }
+  .contact-cta a{
+    display:inline-block;
+    background:var(--accent);
+    color:#fff;
+    text-decoration:none;
+    padding:11px 22px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:600;
+  }
+
+  :focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>무엇을 도와드릴까요?</h1>
+  <p>자주 묻는 질문을 모아두었습니다. 원하는 답변을 찾지 못하셨다면 아래에서 문의해 주세요.</p>
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="궁금한 내용을 검색해보세요" autocomplete="off">
+    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  </div>
+</header>
+
+<main>
+
+  <!-- 카테고리 탭: data-category 값과 아래 섹션의 data-category가 일치해야 필터링됨 -->
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-category="all">전체</button>
+    <button class="tab" data-category="shipping">배송</button>
+    <button class="tab" data-category="payment">결제</button>
+    <button class="tab" data-category="returns">반품·교환</button>
+    <button class="tab" data-category="account">계정</button>
+  </div>
+
+  <div id="faq-list">
+
+    <!-- ================= 배송 ================= -->
+    <h2 class="category-title" data-category="shipping">배송</h2>
+
+    <details id="q-shipping-1" data-category="shipping">
+      <summary>
+        배송은 얼마나 걸리나요?
+        <button class="link-btn" data-target="q-shipping-1" aria-label="이 질문 링크 복사">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.36-1.36"/></svg>
+        </button>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="answer">
+        <p>결제 완료 기준으로 평균 2~3영업일 이내 도착합니다. 도서·산간 지역은 1~2일 추가될 수 있습니다.</p>
+        <p>주문 상태는 마이페이지 &gt; 주문내역에서 실시간으로 확인하실 수 있습니다.</p>
+      </div>
+    </details>
+
+    <details id="q-shipping-2" data-category="shipping">
+      <summary>
+        배송 조회는 어떻게 하나요?
+        <button class="link-btn" data-target="q-shipping-2" aria-label="이 질문 링크 복사">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.36-1.36"/></svg>
+        </button>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="answer">
+        <p>발송이 완료되면 등록하신 이메일과 문자로 송장번호가 자동 전송됩니다. 마이페이지에서도 확인 가능합니다.</p>
+      </div>
+    </details>
+
+    <!-- ================= 결제 ================= -->
+    <h2 class="category-title" data-category="payment">결제</h2>
+
+    <details id="q-payment-1" data-category="payment">
+      <summary>
+        어떤 결제 수단을 사용할 수 있나요?
+        <button class="link-btn" data-target="q-payment-1" aria-label="이 질문 링크 복사">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.36-1.36"/></svg>
+        </button>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="answer">
+        <p>신용·체크카드, 무통장입금, 간편결제(카카오페이·네이버페이)를 지원합니다.</p>
+      </div>
+    </details>
+
+    <details id="q-payment-2" data-category="payment">
+      <summary>
+        영수증 발급이 가능한가요?
+        <button class="link-btn" data-target="q-payment-2" aria-label="이 질문 링크 복사">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.36-1.36"/></svg>
+        </button>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="answer">
+        <p>마이페이지 &gt; 주문내역에서 현금영수증 및 세금계산서 신청이 가능합니다.</p>
+      </div>
+    </details>
+
+    <!-- ================= 반품·교환 ================= -->
+    <h2 class="category-title" data-category="returns">반품·교환</h2>
+
+    <details id="q-returns-1" data-category="returns">
+      <summary>
+        반품은 언제까지 신청할 수 있나요?
+        <button class="link-btn" data-target="q-returns-1" aria-label="이 질문 링크 복사">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.36-1.36"/></svg>
+        </button>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="answer">
+        <p>상품 수령일로부터 7일 이내에 신청해 주세요. 단순 변심의 경우 왕복 배송비가 부과될 수 있습니다.</p>
+      </div>
+    </details>
+
+    <details id="q-returns-2" data-category="returns">
+      <summary>
+        교환은 어떻게 진행되나요?
+        <button class="link-btn" data-target="q-returns-2" aria-label="이 질문 링크 복사">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.36-1.36"/></svg>
+        </button>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="answer">
+        <p>마이페이지 &gt; 주문내역에서 교환 신청 후, 안내되는 주소로 상품을 발송해 주시면 검수 후 새 상품이 발송됩니다.</p>
+      </div>
+    </details>
+
+    <!-- ================= 계정 ================= -->
+    <h2 class="category-title" data-category="account">계정</h2>
+
+    <details id="q-account-1" data-category="account">
+      <summary>
+        비밀번호를 잊어버렸어요.
+        <button class="link-btn" data-target="q-account-1" aria-label="이 질문 링크 복사">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.36-1.36"/></svg>
+        </button>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="answer">
+        <p>로그인 화면의 '비밀번호 찾기'를 통해 가입 시 등록한 이메일로 재설정 링크를 받으실 수 있습니다.</p>
+      </div>
+    </details>
+
+    <details id="q-account-2" data-category="account">
+      <summary>
+        회원 탈퇴는 어떻게 하나요?
+        <button class="link-btn" data-target="q-account-2" aria-label="이 질문 링크 복사">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.36-1.36"/></svg>
+        </button>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="answer">
+        <p>마이페이지 &gt; 설정 &gt; 회원 탈퇴에서 진행하실 수 있으며, 탈퇴 시 보유 포인트와 쿠폰은 소멸됩니다.</p>
+      </div>
+    </details>
+
+  </div>
+
+  <p class="no-results" id="no-results">검색 결과가 없습니다. 다른 키워드로 시도해 보세요.</p>
+
+</main>
+
+<div class="contact-cta">
+  <h2>원하는 답변을 찾지 못하셨나요?</h2>
+  <p>고객센터 운영시간: 평일 09:00 – 18:00 (주말·공휴일 휴무)</p>
+  <a href="mailto:support@example.com">문의하기</a>
+</div>
+
+<div class="toast" id="toast">링크가 복사되었습니다</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const items = document.querySelectorAll('#faq-list details');
+  const catTitles = document.querySelectorAll('.category-title');
+  const searchInput = document.getElementById('search');
+  const noResults = document.getElementById('no-results');
+
+  let activeCategory = 'all';
+
+  function applyFilters(){
+    const query = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    items.forEach(item => {
+      const inCategory = activeCategory === 'all' || item.dataset.category === activeCategory;
+      const text = item.textContent.toLowerCase();
+      const matchesQuery = query === '' || text.includes(query);
+      const show = inCategory && matchesQuery;
+      item.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    catTitles.forEach(title => {
+      const groupItems = document.querySelectorAll(`details[data-category="${title.dataset.category}"]`);
+      const anyVisible = Array.from(groupItems).some(i => i.style.display !== 'none');
+      title.style.display = (activeCategory === 'all' || activeCategory === title.dataset.category) && anyVisible
+        ? '' : 'none';
+    });
+
+    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeCategory = tab.dataset.category;
+      applyFilters();
+    });
+  });
+
+  searchInput.addEventListener('input', applyFilters);
+
+  // 링크 복사 버튼
+  document.querySelectorAll('.link-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = btn.dataset.target;
+      const url = `${location.origin}${location.pathname}#${id}`;
+      navigator.clipboard.writeText(url).then(showToast).catch(() => {
+        // 클립보드 API를 사용할 수 없는 환경 대비 fallback
+        const temp = document.createElement('input');
+        document.body.appendChild(temp);
+        temp.value = url;
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        showToast();
+      });
+    });
+  });
+
+  function showToast(){
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  // 해시로 접속 시 해당 질문 자동으로 펼치고 스크롤 + 강조
+  function openFromHash(){
+    const id = location.hash.replace('#','');
+    if(!id) return;
+    const target = document.getElementById(id);
+    if(!target) return;
+    target.setAttribute('open','');
+    target.dataset.flash = '1';
+    setTimeout(() => target.scrollIntoView({behavior:'smooth', block:'center'}), 50);
+    setTimeout(() => target.removeAttribute('data-flash'), 1700);
+  }
+
+  window.addEventListener('DOMContentLoaded', openFromHash);
+  window.addEventListener('hashchange', openFromHash);
+</script>
+
+</body>
+</html>
